@@ -1,4 +1,5 @@
 from socket import gethostbyname, socket, AF_INET, SOCK_STREAM
+import os
 
 HTTP_HEADER_DELIMITER = b'\r\n\r\n'
 CONTENT_LENGTH_FIELD = b'Content-Length:'
@@ -50,10 +51,23 @@ def get_body(sock, length):
 
     return body 
 
+def write_body(name_file, extension, body):
+
+    if not(os.path.exists('Files')): 
+        os.mkdir('Files')
+    
+    file = open('Files/{}.{}'.format(name_file, extension), 'w+')
+    file.write(body.decode('utf-8'))
+    file.close()
+    
+    return 1
+
 def main():
     
-    host = 'www.google.com'
-    path = '/'
+    host = input('Ingresa el host: ')
+    path = input('Ingresa el Path acuerdate del --> / <--inicial: ')
+    name_file = input('Ingrese nombre deseado para el body a descargar: ')
+    extension = input('Ingrese extension que se descargara: ')
     print(f"# Recibiendo informacion de http://{host}{path}")
    
     ip_address = gethostbyname(host)
@@ -66,7 +80,7 @@ def main():
 
     http_get_request = request(host, path)
     print('\n# HTTP request ({} bytes)'.format(len(http_get_request)))
-    print(http_get_request)
+    print(http_get_request)     
     sock.sendall(http_get_request)
  
     header = response(sock)
@@ -80,7 +94,15 @@ def main():
 
     body = get_body(sock, length)
     print('\n# Cuerpo ({} bytes)'.format(len(body)))
-    print(body)
+
+    wfile = write_body(name_file, extension, body)
+
+    if (wfile == 1): 
+        print('\n# Archivo guardado')
+    else: 
+        print('\n# No se pudo guardar el archivo') 
+    
+
 
 
 if __name__ == '__main__':
