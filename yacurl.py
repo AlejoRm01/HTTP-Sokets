@@ -56,12 +56,19 @@ def write_body(name_file, extension, body):
     if not(os.path.exists('Files')): 
         os.mkdir('Files')
     
+<<<<<<< HEAD
     try:
         file = open('Files/{}.{}'.format(name_file, extension), 'w+')
         file.write(body.decode('utf-8'))
         file.close()
     except:
         return 0
+=======
+    file = open('Files/{}.{}'.format(name_file, extension), 'w+')
+    file.write(body.decode('utf-8'))
+    file.close()
+    
+>>>>>>> 66d75cfb48457df8404893f81e860cec3fadfd57
     return 1
 
 def main():
@@ -99,10 +106,17 @@ def main():
 
     wfile = write_body(name_file, extension, body)
 
+<<<<<<< HEAD
     if wfile == 1: 
         print('\n# Archivo guardado')
     else: 
         print('\n# Error guardando el archivo') 
+=======
+    if (wfile == 1): 
+        print('\n# Archivo guardado')
+    else: 
+        print('\n# No se pudo guardar el archivo') 
+>>>>>>> 66d75cfb48457df8404893f81e860cec3fadfd57
     
 
 
