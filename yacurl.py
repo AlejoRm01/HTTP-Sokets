@@ -1,4 +1,5 @@
 from socket import gethostbyname, socket, AF_INET, SOCK_STREAM
+from bs4 import BeautifulSoup
 import os
 
 HTTP_HEADER_DELIMITER = b'\r\n\r\n'
@@ -12,7 +13,7 @@ def request(host, path, method='GET'):
     request = r.encode()
 
     return request
-
+    
 def response(sock):
 
     header = bytes() 
@@ -64,21 +65,38 @@ def write_body(name_file, extension, body):
         return 0
     return 1
 
+def parser_body(file):
+    content = open(file)
+    soup = BeautifulSoup(content, 'html.parser')
+    parser = soup.find_all('<img>', '<object> </object>', '<video> </video>', '<audio> </audio>', '<source>')
+
+    return parser
+
+
+
 def main():
     
     host = input('Ingresa el host: ')
     path = input('Ingresa el Path acuerdate del --> / <--inicial: ')
+    port = input('Ingrese el puerto: ')
     name_file = input('Ingrese nombre deseado para el body a descargar(Sin el punto): ')
-    extension = input('Ingrese extension que se descargara: ')
-    print(f"# Recibiendo informacion de http://{host}{path}")
-   
+    extension = input('Ingrese extension que se descargara(no adicione el punto): ')
+    aux = 0
+    if(extension == 'html'):
+        parser = input('Desea parsear el html(1 para si 2 para no): ')
+        if(parser == '1' ):
+           aux = 1 
+        else:
+            pass
+
+    print(f'\n# Recibiendo informacion de http://{host}{path}')
     ip_address = gethostbyname(host)
-    print(f"> Servidor remoto {host} direccion ip {ip_address}")
+    print(f'> Servidor remoto {host} direccion ip {ip_address}')
 
     
     sock = socket(AF_INET, SOCK_STREAM)
-    sock.connect((ip_address, HTTP_PORT))
-    print(f"> Conexion TCP con {ip_address}:{HTTP_PORT} establecida")
+    sock.connect((ip_address, int(port)))
+    print(f'> Conexion TCP con {ip_address}:{port} establecida')
 
     http_get_request = request(host, path)
     print('\n# HTTP request ({} bytes)'.format(len(http_get_request)))
@@ -95,15 +113,25 @@ def main():
     print(f"{length} bytes")
 
     body = get_body(sock, length)
-    print('\n# Cuerpo ({} bytes)'.format(len(body)))
 
-    wfile = write_body(name_file, extension, body)
+    if(len(body) > 1):
 
-    if wfile == 1: 
-        print('\n# Archivo guardado')
-    else: 
-        print('\n# Error guardando el archivo') 
-    
+        print('\n# Cuerpo ({} bytes)'.format(len(body)))
+        print(body)
+
+        wfile = write_body(name_file, extension, body)
+
+        if wfile == 1: 
+            print('\n# Archivo guardado')
+        else: 
+            print('\n# Error guardando el archivo') 
+        
+        if (aux == 1):
+
+            parser = parser_body('Files/{}.{}'.format(name_file, extension))
+            print('\n# El archivo se ha parseado: \n {}'.format(parser))
+    else:
+        print('\n# El archivo no tiene cuerpo ({} bytes)'.format(len(body)))
 
 
 
