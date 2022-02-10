@@ -56,14 +56,15 @@ def write_body(name_file, extension, body):
 
     if not(os.path.exists('Files')): 
         os.mkdir('Files')
-    
+
     try:
         file = open('Files/{}.{}'.format(name_file, extension), 'w+')
-        file.write(body.decode('utf-8'))
+        file.write(body.decode('latin-1'))
         file.close()
     except:
         return 0
     return 1
+
 
 def parser_body(file):
     content = open(file)
@@ -126,7 +127,7 @@ def main():
         else: 
             print('\n# Error guardando el archivo') 
         
-        if (aux == 1):
+        if (aux == 1 and wfile ==1):
 
             parser = parser_body('Files/{}.{}'.format(name_file, extension))
             print('\n# El archivo se ha parseado: \n {}'.format(parser))
