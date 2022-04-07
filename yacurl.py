@@ -1,5 +1,6 @@
 from socket import gethostbyname, socket, AF_INET, SOCK_STREAM
 from bs4 import BeautifulSoup
+from parser import *
 import os
 
 HTTP_HEADER_DELIMITER = b'\r\n\r\n'
@@ -65,15 +66,8 @@ def write_body(name_file, extension, body):
         return 0
     return 1
 
-
-def parser_body(file):
-    content = open(file)
-    soup = BeautifulSoup(content, 'html.parser')
-    parser = soup.find_all('<img>', '<object> </object>', '<video> </video>', '<audio> </audio>', '<source>')
-
-    return parser
-
-
+def parser_b(body):
+    parser.feed(body.decode())
 
 def main():
     
@@ -128,9 +122,8 @@ def main():
             print('\n# Error guardando el archivo') 
         
         if (aux == 1 and wfile ==1):
-
-            parser = parser_body('Files/{}.{}'.format(name_file, extension))
-            print('\n# El archivo se ha parseado: \n {}'.format(parser))
+            parser_b(body)
+            
     else:
         print('\n# El archivo no tiene cuerpo ({} bytes)'.format(len(body)))
 
