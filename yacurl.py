@@ -1,6 +1,7 @@
+from distutils import extension
 from socket import gethostbyname, socket, AF_INET, SOCK_STREAM
-from bs4 import BeautifulSoup
-from parser import *
+from parser import MyHTMLParser 
+import urllib.request 
 import os
 
 HTTP_HEADER_DELIMITER = b'\r\n\r\n'
@@ -11,9 +12,8 @@ ONE_BYTE_LENGTH = 1
 def request(host, path, method='GET'):
     
     r =  '{} {} HTTP/1.1\nHost: {}\r\n\r\n'.format(method, path, host)
-    request = r.encode()
 
-    return request
+    return r.encode()
     
 def response(sock):
 
@@ -66,34 +66,34 @@ def write_body(name_file, extension, body):
         return 0
     return 1
 
-def parser_b(body):
-    parser.feed(body.decode())
+def parser_body(body):
+    
+    parser = MyHTMLParser()
+    parser.feed(body.decode('latin-1'))
 
 def main():
     
-    host = input('Ingresa el host: ')
-    path = input('Ingresa el Path acuerdate del --> / <--inicial: ')
-    port = input('Ingrese el puerto: ')
-    name_file = input('Ingrese nombre deseado para el body a descargar(Sin el punto): ')
-    extension = input('Ingrese extension que se descargara(no adicione el punto): ')
-    aux = 0
-    if(extension == 'html'):
-        parser = input('Desea parsear el html(1 para si 2 para no): ')
-        if(parser == '1' ):
-           aux = 1 
-        else:
-            pass
-
+    host = input('\nIngresa el host: ')
+    path = input('Ingresa el Path : ')
+    
+    extension = path.rfind('.')
+    extension = path[extension+1:]
+    
+    print(f'> Extension del archivo que descargaras: {extension}')
+    
+    name_file = 'file_html'
+    
     print(f'\n# Recibiendo informacion de http://{host}{path}')
     ip_address = gethostbyname(host)
     print(f'> Servidor remoto {host} direccion ip {ip_address}')
 
     
     sock = socket(AF_INET, SOCK_STREAM)
-    sock.connect((ip_address, int(port)))
-    print(f'> Conexion TCP con {ip_address}:{port} establecida')
+    sock.connect((ip_address, 80))
+    print(f'> Conexion TCP con {ip_address}:{80} establecida')
 
     http_get_request = request(host, path)
+    urllib.request.urlretrieve('http://{}{}'.format(host, path), 'Files/{}.{}'.format(name_file, extension))
     print('\n# HTTP request ({} bytes)'.format(len(http_get_request)))
     print(http_get_request)     
     sock.sendall(http_get_request)
@@ -114,15 +114,16 @@ def main():
         print('\n# Cuerpo ({} bytes)'.format(len(body)))
         print(body)
 
-        wfile = write_body(name_file, extension, body)
+        wfile = write_body(name_file, 'html', body)
 
         if wfile == 1: 
             print('\n# Archivo guardado')
+            print(f'\n>  Parser del html')
+            print('\n')
+            parser_body(body)
         else: 
             print('\n# Error guardando el archivo') 
         
-        if (aux == 1 and wfile ==1):
-            parser_b(body)
             
     else:
         print('\n# El archivo no tiene cuerpo ({} bytes)'.format(len(body)))
