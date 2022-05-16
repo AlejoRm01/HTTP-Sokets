@@ -30,5 +30,3 @@ class MyHTMLParser(HTMLParser):
 
     def handle_decl(self, data):
         print("Decl     :", data)
-
-parser = MyHTMLParser()

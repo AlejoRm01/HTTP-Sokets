@@ -1,4 +1,3 @@
-from distutils import extension
 from socket import gethostbyname, socket, AF_INET, SOCK_STREAM
 from parser import MyHTMLParser 
 import urllib.request 
